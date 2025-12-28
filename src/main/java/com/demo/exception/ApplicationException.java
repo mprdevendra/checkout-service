@@ -1,6 +1,6 @@
 package com.demo.exception;
 
-public abstract class ApplicationException extends Exception {
+public abstract class ApplicationException extends RuntimeException {
 
     private int errorCode;
 

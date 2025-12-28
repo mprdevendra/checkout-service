@@ -13,6 +13,7 @@ import java.util.List;
 @Data
 @ToString
 public class BasketPricingResponseDto {
+    private int basketId;
     private List<ItemDto> items;
     private BigDecimal subTotal;
     private List<DiscountDto> discounts;

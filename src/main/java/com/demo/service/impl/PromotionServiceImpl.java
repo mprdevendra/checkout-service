@@ -3,10 +3,12 @@ package com.demo.service.impl;
 import com.demo.dto.DiscountDetailsDto;
 import com.demo.dto.ItemDetailsDto;
 import com.demo.entity.Promotion;
+import com.demo.exception.PromotionServiceException;
 import com.demo.promotion.IPromotionStrategy;
 import com.demo.promotion.PromotionRegistry;
 import com.demo.repository.PromotionRepository;
 import com.demo.service.IPromotionService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class PromotionServiceImpl implements IPromotionService {
 
     @Autowired
@@ -26,26 +29,37 @@ public class PromotionServiceImpl implements IPromotionService {
     private PromotionRepository promotionRepository;
 
     public List<DiscountDetailsDto> calculateDiscount(List<ItemDetailsDto> itemDetailsDtos) {
-        List<DiscountDetailsDto> discountDetailsDtos = new ArrayList<>();
-        if(itemDetailsDtos != null && !itemDetailsDtos.isEmpty()){
-            List<String> itemNames = getItemNames(itemDetailsDtos);
-            Map<String, Promotion> promotionMap = getPromotionsMapByNames(itemNames);
-            //basket level discount
-            for(ItemDetailsDto itemDetailsDto : itemDetailsDtos){
-                if(promotionMap.containsKey(itemDetailsDto.getName())){
-                    Promotion promotion = promotionMap.get(itemDetailsDto.getName());
-                    if(promotion.isActive()){
-                        String promotionType = promotion.getPromotionType();
-                        IPromotionStrategy promotionCalculator = promotionRegistry.getPromotion(promotionType);
-                        if(promotionCalculator!=null){
-                            Optional<DiscountDetailsDto> optionalDiscountDto = promotionCalculator.apply(itemDetailsDto.getQuantity(), itemDetailsDto.getUnitPrice(), promotion);
-                            optionalDiscountDto.ifPresent(discountDetailsDtos::add);
-                        }
-                    }
+        try {
+            List<DiscountDetailsDto> discountDetailsDtos = new ArrayList<>();
+            if(itemDetailsDtos != null && !itemDetailsDtos.isEmpty()){
+                List<String> itemNames = getItemNames(itemDetailsDtos);
+                Map<String, Promotion> promotionMap = getPromotionsMapByNames(itemNames);
+                for(ItemDetailsDto itemDetailsDto : itemDetailsDtos){
+                    Optional<DiscountDetailsDto> optionalDiscountDto = applyDiscount(itemDetailsDto, promotionMap);
+                    optionalDiscountDto.ifPresent(discountDetailsDtos::add);
+                }
+            }
+            return discountDetailsDtos;
+        } catch (Exception ex) {
+            log.error("Error occurred while calculating discount details", ex);
+            throw new PromotionServiceException("Error in calculating discount details", ex);
+        }
+    }
+
+    private Optional<DiscountDetailsDto> applyDiscount(ItemDetailsDto itemDetailsDto,Map<String, Promotion> promotionMap){
+        Optional<DiscountDetailsDto> optionalDiscountDto = Optional.empty();
+        if(promotionMap.containsKey(itemDetailsDto.getName())){
+            Promotion promotion = promotionMap.get(itemDetailsDto.getName());
+            if(promotion!=null && promotion.isActive()){
+                String promotionType = promotion.getPromotionType();
+                log.debug("Promotion is getting applied on item={},promotion type={}",itemDetailsDto.getName(),promotionType);
+                IPromotionStrategy promotionCalculator = promotionRegistry.getPromotion(promotionType);
+                if(promotionCalculator!=null){
+                    optionalDiscountDto = promotionCalculator.apply(itemDetailsDto.getQuantity(), itemDetailsDto.getUnitPrice(), promotion);
                 }
             }
         }
-        return discountDetailsDtos;
+        return optionalDiscountDto;
     }
 
     private Map<String, Promotion> getPromotionsMapByNames(List<String> itemNames){

@@ -37,12 +37,14 @@ public class PromotionRegistryTest {
     public void test_getPromotion_BuyXGetY_success(){
         IPromotionStrategy promotion = promotionRegistry.getPromotion("BUY_X_GET_Y");
         Assertions.assertNotNull(promotion);
+        Assertions.assertSame(buyXGetYPromotion, promotion);
     }
 
     @Test
     public void test_getPromotion_FixedBundlePrice_success(){
         IPromotionStrategy promotion = promotionRegistry.getPromotion("FIXED_BUNDLE_PRICE");
         Assertions.assertNotNull(promotion);
+        Assertions.assertSame(fixedBundlePricePromotion, promotion);
     }
 
     @Test
