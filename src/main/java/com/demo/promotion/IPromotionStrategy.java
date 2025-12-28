@@ -4,7 +4,8 @@ import com.demo.dto.DiscountDetailsDto;
 import com.demo.entity.Promotion;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 public interface IPromotionStrategy {
-    DiscountDetailsDto apply(int quantity, BigDecimal unitPrice, Promotion promotion);
+    Optional<DiscountDetailsDto> apply(int quantity, BigDecimal unitPrice, Promotion promotion);
 }

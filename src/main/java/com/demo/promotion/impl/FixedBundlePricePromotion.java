@@ -7,16 +7,17 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Optional;
 
 @Component("fixedBundlePricePromotion")
 public class FixedBundlePricePromotion implements IPromotionStrategy {
 
     @Override
-    public DiscountDetailsDto apply(int quantity, BigDecimal unitPrice, Promotion promotion){
+    public Optional<DiscountDetailsDto> apply(int quantity, BigDecimal unitPrice, Promotion promotion){
         int offerOnBundleSize = promotion.getBundleSize();
         BigDecimal offerOnBundlePrice = promotion.getBundlePrice();
         if(quantity <= offerOnBundleSize){
-            return null;
+            return Optional.empty();
         }
         String productName = promotion.getProductName();
 
@@ -27,10 +28,8 @@ public class FixedBundlePricePromotion implements IPromotionStrategy {
         BigDecimal discount = totalLinePrice.subtract(totalBundlePrice).setScale(2, RoundingMode.HALF_UP);
 
         String description = discountDescription(offerOnBundleSize, productName, offerOnBundlePrice);
-        DiscountDetailsDto discountDetailsDto = new DiscountDetailsDto();
-        discountDetailsDto.setDescription(description);
-        discountDetailsDto.setAmount(discount);
-        return discountDetailsDto;
+        DiscountDetailsDto discountDetailsDto = new DiscountDetailsDto(description, discount);
+        return Optional.of(discountDetailsDto);
     }
 
     private String discountDescription(int offerOnBundleSize,String productName, BigDecimal offerOnBundlePrice){

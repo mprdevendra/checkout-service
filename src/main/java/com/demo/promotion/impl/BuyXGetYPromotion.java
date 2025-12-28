@@ -7,15 +7,16 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Optional;
 
 @Component("buyXGetYPromotion")
 public class BuyXGetYPromotion implements IPromotionStrategy {
 
     @Override
-    public DiscountDetailsDto apply(int quantity, BigDecimal unitPrice, Promotion promotion){
+    public Optional<DiscountDetailsDto> apply(int quantity, BigDecimal unitPrice, Promotion promotion){
         int buyXQuantity = promotion.getBuyXQuantity();
-        if(quantity <= buyXQuantity){
-            return null;
+        if (unitPrice == null || quantity <= 0) {
+            return Optional.empty();
         }
         int getFreeQuantity = promotion.getGetYQuantity();
 
@@ -25,10 +26,8 @@ public class BuyXGetYPromotion implements IPromotionStrategy {
         BigDecimal discount = BigDecimal.valueOf(freeItem).multiply(unitPrice).setScale(2, RoundingMode.HALF_UP);
 
         String description = discountDescription(buyXQuantity, getFreeQuantity, promotion.getProductName());
-        DiscountDetailsDto discountDetailsDto = new DiscountDetailsDto();
-        discountDetailsDto.setDescription(description);
-        discountDetailsDto.setAmount(discount);
-        return discountDetailsDto;
+        DiscountDetailsDto discountDetailsDto = new DiscountDetailsDto(description,discount);
+        return Optional.of(discountDetailsDto);
     }
 
     private String discountDescription(int buyXQuantity,int getFreeQuantity,String productName){

@@ -19,7 +19,7 @@ public class CheckoutController {
     private ICheckoutService groceryServiceImpl;
 
     @PostMapping("/basket/calculate")
-    public ResponseEntity<?> calculateBasketPrice(@RequestBody @Valid BasketDto basketDto) throws InvalidInputException {
+    public ResponseEntity<?> calculateBasketPrice(@RequestBody @Valid BasketDto basketDto) {
         BasketPricingResponseDto calculatedBasketPrice = groceryServiceImpl.calculateBasketPrice(basketDto);
         String basketPricingDetails = groceryServiceImpl.formatResponse(calculatedBasketPrice);
         return new ResponseEntity<>(basketPricingDetails, HttpStatus.OK);

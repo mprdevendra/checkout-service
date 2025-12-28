@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,19 +26,21 @@ public class PromotionServiceImpl implements IPromotionService {
     private PromotionRepository promotionRepository;
 
     public List<DiscountDetailsDto> calculateDiscount(List<ItemDetailsDto> itemDetailsDtos) {
-        List<String> itemNames = getItemNames(itemDetailsDtos);
-        Map<String, Promotion> promotionMap = getPromotionsMapByNames(itemNames);
-        //basket level discount
         List<DiscountDetailsDto> discountDetailsDtos = new ArrayList<>();
-        for(ItemDetailsDto itemDetailsDto : itemDetailsDtos){
-            if(promotionMap.containsKey(itemDetailsDto.getName())){
-                Promotion promotion = promotionMap.get(itemDetailsDto.getName());
-                if(promotion.isActive()){
-                    String promotionType = promotion.getPromotionType();
-                    IPromotionStrategy promotionCalculator = promotionRegistry.getPromotion(promotionType);
-                    DiscountDetailsDto discountDto = promotionCalculator.apply(itemDetailsDto.getQuantity(), itemDetailsDto.getUnitPrice(), promotion);
-                    if(discountDto!=null){
-                        discountDetailsDtos.add(discountDto);
+        if(itemDetailsDtos != null && !itemDetailsDtos.isEmpty()){
+            List<String> itemNames = getItemNames(itemDetailsDtos);
+            Map<String, Promotion> promotionMap = getPromotionsMapByNames(itemNames);
+            //basket level discount
+            for(ItemDetailsDto itemDetailsDto : itemDetailsDtos){
+                if(promotionMap.containsKey(itemDetailsDto.getName())){
+                    Promotion promotion = promotionMap.get(itemDetailsDto.getName());
+                    if(promotion.isActive()){
+                        String promotionType = promotion.getPromotionType();
+                        IPromotionStrategy promotionCalculator = promotionRegistry.getPromotion(promotionType);
+                        if(promotionCalculator!=null){
+                            Optional<DiscountDetailsDto> optionalDiscountDto = promotionCalculator.apply(itemDetailsDto.getQuantity(), itemDetailsDto.getUnitPrice(), promotion);
+                            optionalDiscountDto.ifPresent(discountDetailsDtos::add);
+                        }
                     }
                 }
             }

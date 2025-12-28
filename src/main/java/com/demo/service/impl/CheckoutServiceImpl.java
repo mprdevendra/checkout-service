@@ -8,6 +8,7 @@ import com.demo.entity.Product;
 import com.demo.exception.DTOMapperServiceException;
 import com.demo.exception.InvalidInputException;
 import com.demo.exception.PriceCalculationException;
+import com.demo.exception.ResponseFormatterException;
 import com.demo.response.formatter.PrintFormatter;
 import com.demo.service.ICheckoutService;
 import com.demo.service.IProductService;
@@ -37,14 +38,20 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private IPromotionService promotionServiceImpl;
 
     @Override
-    public BasketPricingResponseDto calculateBasketPrice(BasketDto basketDto) throws InvalidInputException {
+    public BasketPricingResponseDto calculateBasketPrice(BasketDto basketDto) {
+        Integer basketId = basketDto.getBasketId();
         List<BasketItemDto> basketItems = basketDto.getBasketItems();
         List<String> itemNames = basketItems.stream().map(BasketItemDto::getItemName).toList();
-        List<Product> products = productServiceImpl.getProductsByNames(itemNames);
-        validateBucketItem(itemNames, products);
-        List<ItemDetailsDto> itemDetailsDtos = calculateItemPrice(basketItems, products);
-        List<DiscountDetailsDto> discountDetailsDtos = promotionServiceImpl.calculateDiscount(itemDetailsDtos);
-        return receiptResponseMapper(itemDetailsDtos, discountDetailsDtos);
+        try{
+            List<Product> products = productServiceImpl.getProductsByNames(itemNames);
+            validateBucketItem(itemNames, products);
+            List<ItemDetailsDto> itemDetailsDtos = calculateItemPrice(basketItems, products);
+            List<DiscountDetailsDto> discountDetailsDtos = promotionServiceImpl.calculateDiscount(itemDetailsDtos);
+            return receiptResponseMapper(itemDetailsDtos, discountDetailsDtos);
+        } catch (InvalidInputException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void validateBucketItem(List<String> itemNames, List<Product> products) throws InvalidInputException {
@@ -94,29 +101,40 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     private BasketPricingResponseDto receiptResponseMapper(List<ItemDetailsDto> itemDetailsDtoList, List<DiscountDetailsDto> discountDetailsDtos) {
         try {
-            BasketPricingResponseDto receiptResponse = new BasketPricingResponseDto();
-            List<ItemDto> itemVos = itemDetailsDtoList.stream().map(item -> {
-                return new ItemDto(item.getName(), item.getQuantity(), item.getLineTotal());
-            }).toList();
-            receiptResponse.setItems(itemVos);
-            List<DiscountDto> discountVos = discountDetailsDtos.stream().map(discount -> new DiscountDto(discount.getDescription(), discount.getAmount())).toList();
-            receiptResponse.setDiscounts(discountVos);
-
-            BigDecimal subtotal = calculateSubtotal(itemVos);
-            receiptResponse.setSubTotal(subtotal);
-            BigDecimal totalDiscount = calculateTotalDiscount(discountVos);
-            receiptResponse.setTotalDiscount(totalDiscount);
+            BasketPricingResponseDto basketPricingResponseDto = new BasketPricingResponseDto();
+            List<ItemDto> itemDtos = mapItemDetailsToItemDto(itemDetailsDtoList);
+            basketPricingResponseDto.setItems(itemDtos);
+            List<DiscountDto> discountDtos = mapDiscountDetailsDtoToDiscountDto(discountDetailsDtos);
+            basketPricingResponseDto.setDiscounts(discountDtos);
+            BigDecimal subtotal = calculateSubtotal(itemDtos);
+            basketPricingResponseDto.setSubTotal(subtotal);
+            BigDecimal totalDiscount = calculateTotalDiscount(discountDtos);
+            basketPricingResponseDto.setTotalDiscount(totalDiscount);
             BigDecimal total = subtotal.subtract(totalDiscount);
-            receiptResponse.setTotal(total);
-            return receiptResponse;
+            basketPricingResponseDto.setTotal(total);
+            return basketPricingResponseDto;
         } catch (Exception exception) {
             throw new DTOMapperServiceException("Failed to map basket pricing response."+exception.getMessage());
         }
     }
 
-    private BigDecimal calculateSubtotal(List<ItemDto> itemVos) {
+    private List<ItemDto>  mapItemDetailsToItemDto(List<ItemDetailsDto> itemDetailsDtoList){
+        return itemDetailsDtoList.stream()
+                .map(item -> {
+            return new ItemDto(item.getName(), item.getQuantity(), item.getLineTotal());
+        }).toList();
+    }
 
-        return itemVos.stream()
+    private List<DiscountDto> mapDiscountDetailsDtoToDiscountDto(List<DiscountDetailsDto> discountDetailsDtos){
+        return discountDetailsDtos.stream()
+                .map(discount ->
+                        new DiscountDto(discount.getDescription(), discount.getAmount()))
+                .toList();
+    }
+
+    private BigDecimal calculateSubtotal(List<ItemDto> itemDtos) {
+
+        return itemDtos.stream()
                 .map(ItemDto::getPrice)
                 .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
@@ -124,9 +142,9 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     }
 
-    private BigDecimal calculateTotalDiscount(List<DiscountDto> discountVos) {
+    private BigDecimal calculateTotalDiscount(List<DiscountDto> discountDtos) {
 
-        return discountVos.stream()
+        return discountDtos.stream()
                 .map(DiscountDto::getAmount)
                 .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
@@ -136,8 +154,11 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     @Override
     public String formatResponse(BasketPricingResponseDto basketPricingResponseDto){
-        //add try catch block exception
-        return PrintFormatter.format(basketPricingResponseDto);
+        try{
+            return PrintFormatter.format(basketPricingResponseDto);
+        } catch (Exception e) {
+            throw new ResponseFormatterException("Error while formatting response");
+        }
     }
 
 }

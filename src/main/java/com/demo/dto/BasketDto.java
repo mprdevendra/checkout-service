@@ -16,12 +16,11 @@ import java.util.List;
 public class BasketDto {
 
     @NotNull(message = "BasketId must not be null")
-    @NotEmpty(message = "BasketId must not be empty")
     @Min(value = 1, message = "BasketId must be at least 1")
     private Integer basketId;
 
-    @NotNull(message = "Basket must not be null")
-    @NotEmpty(message = "Basket must not be empty")
+    @NotNull(message = "Basket item(s) must not be null")
+    @NotEmpty(message = "Basket item(s) must not be empty")
     @Valid
     private List<BasketItemDto> basketItems;
 }

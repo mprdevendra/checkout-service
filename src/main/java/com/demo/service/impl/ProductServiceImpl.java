@@ -15,7 +15,12 @@ public class ProductServiceImpl implements IProductService {
     private ProductRepository productRepository;
 
     public List<Product> getProductsByNames(List<String> itemNames){
-        return productRepository.getByNames(itemNames);
+        try{
+            return productRepository.getByNames(itemNames);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 
