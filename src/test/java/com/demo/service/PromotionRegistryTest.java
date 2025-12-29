@@ -1,6 +1,5 @@
-package com.demo.promotion;
+package com.demo.service;
 
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

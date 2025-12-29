@@ -1,11 +1,12 @@
 package com.demo.service.impl;
 
-import com.demo.dto.DiscountDetailsDto;
-import com.demo.dto.ItemDetailsDto;
+import com.demo.api.dto.DiscountDetailsDto;
+import com.demo.api.dto.DiscountDto;
+import com.demo.api.dto.ItemDetailsDto;
 import com.demo.entity.Promotion;
 import com.demo.exception.PromotionServiceException;
-import com.demo.promotion.IPromotionStrategy;
-import com.demo.promotion.PromotionRegistry;
+import com.demo.service.IPromotionStrategy;
+import com.demo.service.PromotionRegistry;
 import com.demo.repository.PromotionRepository;
 import com.demo.service.IPromotionService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,26 +29,27 @@ public class PromotionServiceImpl implements IPromotionService {
     @Autowired
     private PromotionRepository promotionRepository;
 
-    public List<DiscountDetailsDto> calculateDiscount(List<ItemDetailsDto> itemDetailsDtos) {
+    @Override
+    public List<DiscountDto> calculateDiscount(List<ItemDetailsDto> itemDetailsDtos) {
         try {
-            List<DiscountDetailsDto> discountDetailsDtos = new ArrayList<>();
+            List<DiscountDto> discountDtos = new ArrayList<>();
             if(itemDetailsDtos != null && !itemDetailsDtos.isEmpty()){
                 List<String> itemNames = getItemNames(itemDetailsDtos);
                 Map<String, Promotion> promotionMap = getPromotionsMapByNames(itemNames);
                 for(ItemDetailsDto itemDetailsDto : itemDetailsDtos){
-                    Optional<DiscountDetailsDto> optionalDiscountDto = applyDiscount(itemDetailsDto, promotionMap);
-                    optionalDiscountDto.ifPresent(discountDetailsDtos::add);
+                    Optional<DiscountDto> optionalDiscountDto = applyDiscount(itemDetailsDto, promotionMap);
+                    optionalDiscountDto.ifPresent(discountDtos::add);
                 }
             }
-            return discountDetailsDtos;
+            return discountDtos;
         } catch (Exception ex) {
             log.error("Error occurred while calculating discount details", ex);
             throw new PromotionServiceException("Error in calculating discount details", ex);
         }
     }
 
-    private Optional<DiscountDetailsDto> applyDiscount(ItemDetailsDto itemDetailsDto,Map<String, Promotion> promotionMap){
-        Optional<DiscountDetailsDto> optionalDiscountDto = Optional.empty();
+    private Optional<DiscountDto> applyDiscount(ItemDetailsDto itemDetailsDto,Map<String, Promotion> promotionMap){
+        Optional<DiscountDto> optionalDiscountDto = Optional.empty();
         if(promotionMap.containsKey(itemDetailsDto.getName())){
             Promotion promotion = promotionMap.get(itemDetailsDto.getName());
             if(promotion!=null && promotion.isActive()){

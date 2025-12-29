@@ -1,8 +1,9 @@
-package com.demo.promotion.impl;
+package com.demo.service.impl;
 
-import com.demo.dto.DiscountDetailsDto;
+import com.demo.api.dto.DiscountDetailsDto;
+import com.demo.api.dto.DiscountDto;
 import com.demo.entity.Promotion;
-import com.demo.promotion.IPromotionStrategy;
+import com.demo.service.IPromotionStrategy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -13,7 +14,7 @@ import java.util.Optional;
 public class FixedBundlePricePromotion implements IPromotionStrategy {
 
     @Override
-    public Optional<DiscountDetailsDto> apply(int quantity, BigDecimal unitPrice, Promotion promotion){
+    public Optional<DiscountDto> apply(int quantity, BigDecimal unitPrice, Promotion promotion){
         int offerOnBundleSize = promotion.getBundleSize();
         BigDecimal offerOnBundlePrice = promotion.getBundlePrice();
         if(quantity <= offerOnBundleSize){
@@ -28,8 +29,8 @@ public class FixedBundlePricePromotion implements IPromotionStrategy {
         BigDecimal discount = totalLinePrice.subtract(totalBundlePrice).setScale(2, RoundingMode.HALF_UP);
 
         String description = discountDescription(offerOnBundleSize, productName, offerOnBundlePrice);
-        DiscountDetailsDto discountDetailsDto = new DiscountDetailsDto(description, discount);
-        return Optional.of(discountDetailsDto);
+        DiscountDto discountDto = new DiscountDto(description, discount);
+        return Optional.of(discountDto);
     }
 
     private String discountDescription(int offerOnBundleSize,String productName, BigDecimal offerOnBundlePrice){

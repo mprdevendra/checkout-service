@@ -1,15 +1,17 @@
-package com.demo.dto;
+package com.demo.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class DiscountDetailsDto {
+@AllArgsConstructor
+@Data
+@ToString
+public class DiscountDto {
     private String description;
     private BigDecimal amount;
 }

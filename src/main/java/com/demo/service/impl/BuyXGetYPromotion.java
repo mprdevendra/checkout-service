@@ -1,8 +1,9 @@
-package com.demo.promotion.impl;
+package com.demo.service.impl;
 
-import com.demo.dto.DiscountDetailsDto;
+import com.demo.api.dto.DiscountDetailsDto;
+import com.demo.api.dto.DiscountDto;
 import com.demo.entity.Promotion;
-import com.demo.promotion.IPromotionStrategy;
+import com.demo.service.IPromotionStrategy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -13,7 +14,7 @@ import java.util.Optional;
 public class BuyXGetYPromotion implements IPromotionStrategy {
 
     @Override
-    public Optional<DiscountDetailsDto> apply(int quantity, BigDecimal unitPrice, Promotion promotion){
+    public Optional<DiscountDto> apply(int quantity, BigDecimal unitPrice, Promotion promotion){
         int buyXQuantity = promotion.getBuyXQuantity();
         if (unitPrice == null || quantity <= 0) {
             return Optional.empty();
@@ -26,8 +27,8 @@ public class BuyXGetYPromotion implements IPromotionStrategy {
         BigDecimal discount = BigDecimal.valueOf(freeItem).multiply(unitPrice).setScale(2, RoundingMode.HALF_UP);
 
         String description = discountDescription(buyXQuantity, getFreeQuantity, promotion.getProductName());
-        DiscountDetailsDto discountDetailsDto = new DiscountDetailsDto(description,discount);
-        return Optional.of(discountDetailsDto);
+        DiscountDto discountDto = new DiscountDto(description,discount);
+        return Optional.of(discountDto);
     }
 
     private String discountDescription(int buyXQuantity,int getFreeQuantity,String productName){

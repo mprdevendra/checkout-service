@@ -1,12 +1,12 @@
 package com.demo.service;
 
-import com.demo.dto.DiscountDetailsDto;
-import com.demo.dto.ItemDetailsDto;
-import com.demo.entity.Promotion;
+import com.demo.api.dto.DiscountDetailsDto;
+import com.demo.api.dto.DiscountDto;
+import com.demo.api.dto.ItemDetailsDto;
 
 import java.util.List;
 
 public interface IPromotionService {
 
-    List<DiscountDetailsDto> calculateDiscount(List<ItemDetailsDto> itemDetailsDtos);
+    List<DiscountDto> calculateDiscount(List<ItemDetailsDto> itemDetailsDtos);
 }

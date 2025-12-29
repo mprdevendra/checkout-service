@@ -1,4 +1,4 @@
-package com.demo.promotion;
+package com.demo.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import java.util.Map;
 @Slf4j
 public class PromotionRegistry {
 
-    private Map<String,IPromotionStrategy> promotionMap;
+    private Map<String, IPromotionStrategy> promotionMap;
 
     @Autowired
     @Qualifier("buyXGetYPromotion")
