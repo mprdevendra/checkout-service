@@ -7,6 +7,7 @@ It processes basket items, applies applicable promotions, calculates discounts, 
 2. This service focuses only on price calculation and promotions.
 
 # Tools & Technologies
+```md
 Java 21
 Spring Boot
 Maven
@@ -14,6 +15,7 @@ REST APIs
 JUnit & Mockito (unit testing)
 Intellij Idea
 Git
+```
 
 # High-Level Design
 The Checkout Service receives a basket request, fetches product and promotion details, calculates line-item prices, applies discounts, and returns the final amount.
