@@ -96,7 +96,9 @@ http://localhost:9001/api/v1/checkout/basket/calculate
    }
 ```
 2. Response body
-   Item          Quantity    Price
+
+```md
+Item          Quantity    Price
 --------------------------------
 Bananas       3           1.50
 Oranges       4           1.20
@@ -111,7 +113,7 @@ Buy 2, get 1 free (Bananas) -0.50
 Total Discount:          0.95
 
 Total:                   2.35
-
+```
 
 
 
