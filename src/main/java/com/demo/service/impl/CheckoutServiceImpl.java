@@ -67,7 +67,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .map(item -> {
                             try {
                                 Product product = productMap.get(item.getItemName());
-                                BigDecimal lineTotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+                                BigDecimal lineTotal = BigDecimal.valueOf(item.getQuantity()).multiply(product.getPrice());
                                 return new ItemDetailsDto(item.getItemName(), item.getQuantity(), lineTotal,product.getPrice());
                             } catch (Exception ex) {
                                 throw new PriceCalculationException(
