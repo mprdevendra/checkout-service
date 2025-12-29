@@ -20,12 +20,13 @@ The Checkout Service receives a basket request, fetches product and promotion de
 
 Flow:-
 1. Receive basket with items and quantities
-2. Fetch product prices
-3. Fetch applicable promotions
-4. Calculate line-item totals
-5. Apply discounts
-6. Calculate basket total
-7. Return response
+2. Validation on request basket and basketItems
+3. Fetch product prices
+4. Fetch applicable promotions
+5. Calculate line-item totals
+6. Apply discounts
+7. Calculate basket total
+8. Return response
 
 
 # Load Balancer & Scalability(Assumed)
@@ -34,18 +35,23 @@ Flow:-
 3. Requests can be distributed across multiple instances.
 
 # Security (Assumed)
+```md
 Authentication and authorization are assumed to be handled via:
    API Gateway 
-   OAuth2 / JWT 
+   JWT 
+```
 
 # Layer Architecture
+```md
 Controller Layer
     ↓
 Service Layer
     ↓
 Repository Layer
+```
 
 # System Diagram (High-Level)
+```md
 Client
     ↓
 API Gateway
@@ -57,7 +63,7 @@ Checkout Service
 +--> Product Service --> Database
 |
 +--> Promotion Service --> Database
-
+```
 ## How to Run the application
 
 ```bash
