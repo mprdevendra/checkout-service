@@ -45,8 +45,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
         log.info("Starting basket price calculation. BasketId={}", basketId);
         try{
             List<Product> products = productServiceImpl.getProductsByNames(itemNames);
-            Map<String, Product> productMap = productMap(products);
-            List<ItemDetailsDto> itemDetailsDtos = calculateItemPrice(basketItems, productMap);
+            List<ItemDetailsDto> itemDetailsDtos = calculateItemPrice(basketItems, products);
             List<DiscountDto> discountDtos = promotionServiceImpl.calculateDiscount(itemDetailsDtos);
             BasketPricingResponseDto response = receiptServiceImpl.receipt(itemDetailsDtos, discountDtos,basketId);
             log.info("Basket price calculation successful. BasketId={}", basketId);
@@ -60,16 +59,16 @@ public class CheckoutServiceImpl implements ICheckoutService {
         }
     }
 
-    private Map<String, Product> productMap(List<Product> products){
-        return products.stream()
+    private List<ItemDetailsDto> calculateItemPrice(List<BasketItemDto> basketItems, List<Product> products) {
+        Map<String, Product> productMap = products.stream()
                 .collect(Collectors.toMap(Product::getName, p -> p));
-    }
 
-    private List<ItemDetailsDto> calculateItemPrice(List<BasketItemDto> basketItems, Map<String, Product> productMap) {
         return basketItems.stream()
                 .map(item -> {
                             try {
-                                return calculateLineItem(item, productMap);
+                                Product product = productMap.get(item.getItemName());
+                                BigDecimal lineTotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+                                return new ItemDetailsDto(item.getItemName(), item.getQuantity(), lineTotal,product.getPrice());
                             } catch (Exception ex) {
                                 throw new PriceCalculationException(
                                         "Failed to calculate price for item: " + item.getItemName(), ex
@@ -79,10 +78,5 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 ).toList();
     }
 
-    private ItemDetailsDto calculateLineItem(BasketItemDto item, Map<String, Product> productMap) {
-        Product product = productMap.get(item.getItemName());
-        BigDecimal lineTotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-        return new ItemDetailsDto(item.getItemName(), item.getQuantity(), lineTotal,product.getPrice());
-    }
 
 }
