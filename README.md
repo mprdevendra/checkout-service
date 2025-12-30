@@ -105,22 +105,41 @@ http://localhost:9001/api/v1/checkout/basket/calculate
 ```
 2. Response body
 
-```md
-Item          Quantity    Price
---------------------------------
-Bananas       3           1.50
-Oranges       4           1.20
-Apples        1           0.60
---------------------------------
-Subtotal:                  3.30
+```json
+    {
+    "basketId": 1,
+    "items": [
+      {
+        "name": "Bananas",
+        "quantity": 3,
+        "price": 1.50
+      },
+      {
+        "name": "Oranges",
+        "quantity": 4,
+        "price": 1.20
+      },
+      {
+        "name": "Apples",
+        "quantity": 1,
+        "price": 0.60
+      }
+    ],
+    "subTotal": 3.30,
+    "discounts": [
+    {
+      "description": "Buy 2, get 1 free (Bananas)",
+      "amount": 0.50
+    },
+    {
+      "description": "3 Oranges for £0.75",
+      "amount": 0.45
+    }
+  ],
+    "totalDiscount": 0.95,
+    "total": 2.35
+  }
 
-Discounts:
-Buy 2, get 1 free (Bananas) -0.50
-3 Oranges for £0.75       -0.45
---------------------------------
-Total Discount:          0.95
-
-Total:                   2.35
 ```
 
 
