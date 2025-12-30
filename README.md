@@ -8,7 +8,7 @@ It processes basket items, applies applicable promotions, calculates discounts, 
 
 # Tools & Technologies
 ```md
-Java 21
+Java 8
 Spring Boot
 Maven
 REST APIs
