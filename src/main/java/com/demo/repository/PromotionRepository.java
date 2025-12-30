@@ -1,6 +1,6 @@
 package com.demo.repository;
 
-import com.demo.entity.Promotion;
+import com.demo.repository.entity.Promotion;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 

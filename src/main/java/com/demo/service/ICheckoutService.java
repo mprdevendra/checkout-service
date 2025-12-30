@@ -2,11 +2,10 @@ package com.demo.service;
 
 import com.demo.api.dto.BasketDto;
 import com.demo.exception.CheckoutServiceException;
-import com.demo.exception.InvalidInputException;
-import com.demo.api.dto.BasketPricingResponseDto;
+import com.demo.api.dto.Receipt;
 
 public interface ICheckoutService {
 
-    BasketPricingResponseDto checkout(BasketDto basketDto) throws InvalidInputException, CheckoutServiceException;
+    Receipt checkout(BasketDto basketDto) throws CheckoutServiceException;
 
 }

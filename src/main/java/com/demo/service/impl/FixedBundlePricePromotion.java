@@ -1,8 +1,7 @@
 package com.demo.service.impl;
 
-import com.demo.api.dto.DiscountDetailsDto;
 import com.demo.api.dto.DiscountDto;
-import com.demo.entity.Promotion;
+import com.demo.repository.entity.Promotion;
 import com.demo.service.IPromotionStrategy;
 import org.springframework.stereotype.Component;
 

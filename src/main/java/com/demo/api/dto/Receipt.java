@@ -1,9 +1,6 @@
 package com.demo.api.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,7 +9,8 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @ToString
-public class BasketPricingResponseDto {
+@Builder
+public class Receipt {
     private int basketId;
     private List<ItemDto> items;
     private BigDecimal subTotal;

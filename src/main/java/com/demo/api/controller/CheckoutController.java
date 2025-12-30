@@ -3,8 +3,7 @@ package com.demo.api.controller;
 import com.demo.api.dto.BasketDto;
 import com.demo.exception.CheckoutServiceException;
 import com.demo.service.ICheckoutService;
-import com.demo.api.dto.BasketPricingResponseDto;
-import com.demo.service.IReceiptService;
+import com.demo.api.dto.Receipt;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ public class CheckoutController {
     @PostMapping("/basket/calculate")
     public ResponseEntity<?> checkout(@RequestBody @Valid BasketDto basketDto) throws CheckoutServiceException {
         log.info("Received checkout request for BasketId={}", basketDto.getBasketId());
-        BasketPricingResponseDto receiptResponse = groceryServiceImpl.checkout(basketDto);
+        Receipt receiptResponse = groceryServiceImpl.checkout(basketDto);
         log.info("Returning checkout response for BasketId={}", basketDto.getBasketId());
         return new ResponseEntity<>(receiptResponse, HttpStatus.OK);
     }

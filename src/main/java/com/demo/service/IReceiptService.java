@@ -1,13 +1,10 @@
 package com.demo.service;
 
-import com.demo.api.dto.BasketPricingResponseDto;
-import com.demo.api.dto.DiscountDetailsDto;
-import com.demo.api.dto.DiscountDto;
-import com.demo.api.dto.ItemDetailsDto;
+import com.demo.api.dto.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface IReceiptService {
-
-    BasketPricingResponseDto receipt(List<ItemDetailsDto> items, List<DiscountDto> discounts, int basketId);
+    Receipt receipt(List<ItemDetailsDto> items, List<DiscountDto> discounts, BigDecimal subTotal, BigDecimal discountTotal, BigDecimal total, int basketId);
 }

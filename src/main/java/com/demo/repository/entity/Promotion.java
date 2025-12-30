@@ -1,4 +1,4 @@
-package com.demo.entity;
+package com.demo.repository.entity;
 import lombok.*;
 
 import java.math.BigDecimal;

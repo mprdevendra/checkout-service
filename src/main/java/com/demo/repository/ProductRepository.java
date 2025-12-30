@@ -1,6 +1,6 @@
 package com.demo.repository;
 
-import com.demo.entity.Product;
+import com.demo.repository.entity.Product;
 import com.demo.exception.ProductNotFoundException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
