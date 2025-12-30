@@ -1,0 +1,28 @@
+[
+  {
+    "productName": "Bananas",
+    "promotionType": "BUY_X_GET_Y",
+    "condition": {
+      "offerType": "QUANTITY",
+      "offerValue": 2
+    },
+    "reward": {
+      "rewardType": "QUANTITY",
+      "rewardValue": 1
+    },
+    "isActive": true
+  },
+  {
+    "productName": "Oranges",
+    "promotionType": "FIXED_BUNDLE_PRICE",
+    "condition": {
+      "offerType": "QUANTITY",
+      "offerValue": 3
+    },
+    "reward": {
+      "rewardType": "BUNDLE_PRICE",
+      "rewardValue": 0.75
+    },
+    "isActive": true
+  }
+]

@@ -1,7 +1,9 @@
 package com.demo.service.impl;
 
 import com.demo.api.dto.DiscountDto;
+import com.demo.repository.entity.Condition;
 import com.demo.repository.entity.Promotion;
+import com.demo.repository.entity.Reward;
 import com.demo.service.IPromotionStrategy;
 import org.springframework.stereotype.Component;
 
@@ -14,11 +16,11 @@ public class BuyXGetYPromotion implements IPromotionStrategy {
 
     @Override
     public Optional<DiscountDto> apply(int quantity, BigDecimal unitPrice, Promotion promotion){
-        int buyXQuantity = promotion.getBuyXQuantity();
-        if (unitPrice == null || quantity <= 0) {
+        if(unitPrice == null || quantity <= 0){
             return Optional.empty();
         }
-        int getFreeQuantity = promotion.getGetYQuantity();
+        int buyXQuantity = Integer.parseInt(promotion.getCondition().getOfferValue());
+        int getFreeQuantity = Integer.parseInt(promotion.getReward().getRewardValue());
 
         int bundleSize = buyXQuantity + getFreeQuantity;
         int freeItem = (quantity / bundleSize) * getFreeQuantity;

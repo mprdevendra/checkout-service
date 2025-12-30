@@ -1,10 +1,10 @@
 package com.demo.repository;
 
 import com.demo.repository.entity.Promotion;
+import com.demo.util.JsonReader;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,13 +16,11 @@ public class PromotionRepository {
     @PostConstruct
     private void setUp(){
         promotions = dbData();
+        System.out.println("test");
     }
 
     private List<Promotion> dbData(){
-        //versioning
-        //This data is just to test as database connection/configuration is not available in this application.
-        return List.of(new Promotion("Bananas", "BUY_X_GET_Y",2,1,null,null,true),
-                new Promotion("Oranges","FIXED_BUNDLE_PRICE",null,null,3,new BigDecimal("0.75"),true));
+        return JsonReader.read("data/promotion.json", Promotion.class);
     }
 
     public Optional<Promotion> findByProductName(String productName){
@@ -33,6 +31,4 @@ public class PromotionRepository {
         return promotions.stream().filter(promotion->
                 productNames.contains(promotion.getProductName())).toList();
     }
-
-
 }

@@ -1,10 +1,10 @@
 # checkout-service project description
 The Checkout Service is responsible for calculating the final payable amount for a customer’s basket.
 It processes basket items, applies applicable promotions, calculates discounts, and returns a detailed price breakdown.
+This service focuses only on price calculation and promotions.
 
 # Assumption:
 1. Add item / remove item functionality already exists and is handled by another service or module.
-2. This service focuses only on price calculation and promotions.
 
 # Tools & Technologies
 ```md
@@ -29,7 +29,7 @@ Flow:-
 6. Apply discounts
 7. Calculate basket total
 8. Return response
-
+9. If exception then ApplicationExceptionHandler would handle.
 
 # Load Balancer & Scalability(Assumed)
 1. Service is stateless, enabling horizontal scaling.
@@ -40,8 +40,11 @@ Flow:-
 ```md
 Authentication and authorization are assumed to be handled via:
    API Gateway 
-   JWT 
+   JWT
 ```
+# Global Exception Handler
+If exception then ApplicationExceptionHandler would handle.(implemented)
+
 
 # Layer Architecture
 ```md

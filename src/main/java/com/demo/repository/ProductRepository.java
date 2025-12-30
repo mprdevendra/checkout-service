@@ -2,11 +2,11 @@ package com.demo.repository;
 
 import com.demo.repository.entity.Product;
 import com.demo.exception.ProductNotFoundException;
+import com.demo.util.JsonReader;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,11 +24,7 @@ public class ProductRepository {
 
     private List<Product> dbData(){
         //This data is just to test as database connection/configuration is not available in this application.
-        return List.of(new Product("Bananas",new BigDecimal("0.50")),
-                new Product("Oranges",new BigDecimal("0.30")),
-                new Product("Apples",new BigDecimal("0.60")),
-                new Product("Lemons",new BigDecimal("0.25")),
-                new Product("Peaches",new BigDecimal("0.75")));
+        return JsonReader.read("data/product.json", Product.class);
     }
 
     public Product findByName(String name){
