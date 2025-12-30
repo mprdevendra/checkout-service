@@ -2,13 +2,8 @@ package com.demo.service.impl;
 
 import com.demo.api.dto.*;
 import com.demo.exception.PriceCalculationException;
-import com.demo.repository.entity.Product;
 import com.demo.exception.CheckoutServiceException;
-import com.demo.exception.ProductNotFoundException;
-import com.demo.service.ICalculationService;
-import com.demo.service.IPriceService;
-import com.demo.service.IProductService;
-import com.demo.service.IPromotionService;
+import com.demo.service.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,52 +23,70 @@ public class CheckoutServiceImplTest {
     private CheckoutServiceImpl checkoutService;
 
     @Mock
-    private IProductService productServiceImpl;
+    private IPriceService priceServiceImpl;
 
     @Mock
     private IPromotionService promotionServiceImpl;
 
     @Mock
-    private ICalculationService calculationServiceImpl;
+    private IReceiptService receiptServiceImpl;
 
     @Mock
-    private IPriceService priceServiceImpl;
-
-    /*@Test
-    void testCalculateBasketPrice_Success() {
-        BasketItemDto item = new BasketItemDto("Bananas", 3);
-        BasketDto basketDto = new BasketDto(1, List.of(item));
-
-        Product product = new Product("Bananas", new BigDecimal("0.50"));
-
-        ItemDetailsDto itemDetails = new ItemDetailsDto("Apples", 2, new BigDecimal("3.00"), new BigDecimal("1.50"));
-        DiscountDto discount = new DiscountDto("Promo", new BigDecimal("0.50"));
-
-        when(priceServiceImpl.itemPrice(List.of("Bananas"))).thenReturn(List.of(product));
-        when(promotionServiceImpl.promotion(List.of(itemDetails))).thenReturn(List.of(discount));
-
-
-        List<ItemDetailsDto> items = priceServiceImpl.itemPrice(basketItems);
-        List<DiscountDto> discounts = promotionServiceImpl.promotion(items);
-        BigDecimal subTotal = calculationServiceImpl.subTotal(items);
-        BigDecimal discountTotal = calculationServiceImpl.discountTotal(discounts);
-        BigDecimal total = calculationServiceImpl.total(subTotal, discountTotal);
-        Receipt receipt = receiptServiceImpl.receipt(items, discounts, subTotal, discountTotal, total, basketId);
-
-        Receipt response = checkoutService.checkout(basketDto);
-
-        assertNotNull(response);
-        assertEquals(1, response.getBasketId());
-        assertEquals(new BigDecimal("3.00"), response.getSubTotal());
-        assertEquals(new BigDecimal("0.50"), response.getTotalDiscount());
-        assertEquals(new BigDecimal("2.50"), response.getTotal());
-
-        verify(productServiceImpl).getProductsByNames(List.of("Apples"));
-        verify(promotionServiceImpl).calculateDiscount(anyList());
-    }*/
+    private ICalculationService calculationServiceImpl;
 
     @Test
-    void testCalculateBasketPrice_ProductNotFound() {
+    void checkout_onlyRequiredAssertions() {
+        BasketItemDto basketItem = new BasketItemDto("Bananas",3);
+        BasketDto basketDto = new BasketDto(1, List.of(basketItem));
+
+        BigDecimal subTotal = new BigDecimal("1.50");
+        BigDecimal discountTotal = new BigDecimal("0.50");
+        BigDecimal total = new BigDecimal("1.00");
+
+        ItemDetailsDto itemDetails = new ItemDetailsDto("Bananas", 3, new BigDecimal("1.50"), new BigDecimal("0.50"));
+        ItemDto items = new ItemDto("Bananas", 3, new BigDecimal("1.50"));
+        DiscountDto discount = new DiscountDto("Buy 2, Get 1 free(Bananas)", new BigDecimal("0.50"));
+
+        Receipt receipt = new Receipt();
+        receipt.setBasketId(1);
+        receipt.setItems(List.of(items));
+        receipt.setSubTotal(subTotal);
+        receipt.setDiscounts(List.of(discount));
+        receipt.setTotalDiscount(discountTotal);
+        receipt.setTotal(total);
+
+        when(priceServiceImpl.itemPrice(List.of(basketItem)))
+                .thenReturn(List.of(itemDetails));
+        when(promotionServiceImpl.promotion(List.of(itemDetails)))
+                .thenReturn(List.of(discount));
+        when(calculationServiceImpl.subTotal(List.of(itemDetails)))
+                .thenReturn(subTotal);
+        when(calculationServiceImpl.discountTotal(List.of(discount)))
+                .thenReturn(discountTotal);
+        when(calculationServiceImpl.total(subTotal, discountTotal))
+                .thenReturn(total);
+
+        when(receiptServiceImpl.receipt(List.of(itemDetails), List.of(discount), subTotal, discountTotal, total, 1))
+                .thenReturn(receipt);
+
+        Receipt result = checkoutService.checkout(basketDto);
+        assertNotNull(result);
+        assertEquals(1, result.getItems().size());
+        assertEquals("Bananas", result.getItems().get(0).getName());
+        assertEquals(3, result.getItems().get(0).getQuantity());
+        assertEquals(new BigDecimal("1.50"), result.getItems().get(0).getPrice());
+
+        assertEquals(1, result.getDiscounts().size());
+        assertEquals("Buy 2, Get 1 free(Bananas)", result.getDiscounts().get(0).getDescription());
+        assertEquals(new BigDecimal("0.50"), result.getDiscounts().get(0).getAmount());
+
+        assertEquals(new BigDecimal("1.50"), result.getSubTotal());
+        assertEquals(new BigDecimal("0.50"), result.getTotalDiscount());
+        assertEquals(new BigDecimal("1.00"), result.getTotal());
+    }
+
+    @Test
+    void testCheckout_PriceCalculationException_Exception() {
         BasketItemDto item = new BasketItemDto("Unknown", 1);
         BasketDto basketDto = new BasketDto(1, List.of(item));
 
@@ -82,7 +95,7 @@ public class CheckoutServiceImplTest {
         CheckoutServiceException ex = assertThrows(CheckoutServiceException.class,
                 () -> checkoutService.checkout(basketDto));
 
-        assertEquals(404, ex.getErrorCode());
-        assertTrue(ex.getMessage().contains("Product not found"));
+        assertEquals(500, ex.getErrorCode());
+        assertTrue(ex.getMessage().contains("Error occurred"));
     }
 }

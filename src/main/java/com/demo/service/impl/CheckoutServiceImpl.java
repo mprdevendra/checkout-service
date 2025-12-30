@@ -45,7 +45,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
             throw new CheckoutServiceException(404, ex.getMessage()+" : BucketId : "+ basketId,ex);
         } catch (Exception ex) {
             log.error("{} BasketId : {}", ex.getMessage(), basketId, ex);
-            throw new CheckoutServiceException(500, "Error occurred while calculating the basket price for BasketId : "+ basketId,ex);
+            throw new CheckoutServiceException(500, "Error occurred while checkout for BasketId : "+ basketId,ex);
         }
     }
 }
