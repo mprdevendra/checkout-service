@@ -42,9 +42,11 @@ Authentication and authorization are assumed to be handled via:
    API Gateway 
    JWT
 ```
-# Global Exception Handler
-If exception then ApplicationExceptionHandler would handle.(implemented)
+# Global Exception Handler (Implemented)
+If exception then ApplicationExceptionHandler would handle.
 
+# Input validation(Implemented)
+Input request on basket level validation implemented.
 
 # Layer Architecture
 ```md
@@ -65,9 +67,24 @@ Load Balancer
     ↓
 Checkout Service
     ↓
-+--> Product Service --> Database
++--> Price Service 
+           |
+           +Product service --> Database
 |
-+--> Promotion Service --> Database
++--> Promotion Service --> database
+           |
+           + Promotion Registry
+           |
+           + Promotion strategy
+|
++--> Calculation service
+|
++--> Receipt Service
+
+if Exception-
+|
++--> Application Exception Handler
+
 ```
 ## How to Run the application
 
@@ -92,58 +109,60 @@ http://localhost:9001/api/v1/checkout/basket/calculate
    {
     "basketId" : 1,
     "basketItems": [
-        {
-            "itemName": "Bananas",
-            "quantity": 3
-        },
-        {
-            "itemName": "Oranges",
-            "quantity": 4
-        },
-        {
-            "itemName": "Apples",
-            "quantity": 1
-        }]
-   }
+      {
+        "itemCode": "BANANAS",
+        "quantity": 3
+      },
+      {
+        "itemCode": "ORANGES",
+        "quantity": 4
+      },
+      {
+        "itemCode": "APPLES",
+        "quantity": 1
+      }]
+    }
 ```
 2. Response body
 
 ```json
     {
-    "basketId": 1,
-    "items": [
-      {
-        "name": "Bananas",
-        "quantity": 3,
-        "price": 1.50
-      },
-      {
-        "name": "Oranges",
-        "quantity": 4,
-        "price": 1.20
-      },
-      {
-        "name": "Apples",
-        "quantity": 1,
-        "price": 0.60
-      }
-    ],
-    "subTotal": 3.30,
-    "discounts": [
-    {
-      "description": "Buy 2, get 1 free (Bananas)",
-      "amount": 0.50
-    },
-    {
-      "description": "3 Oranges for £0.75",
-      "amount": 0.45
+      "basketId": 1,
+      "items": [
+        {
+          "itemCode": "BANANAS",
+          "quantity": 3,
+          "price": 1.50
+        },
+        {
+          "itemCode": "ORANGES",
+          "quantity": 4,
+          "price": 1.20
+        },
+        {
+          "itemCode": "APPLES",
+          "quantity": 1,
+          "price": 0.60
+        }],
+      "subTotal": 3.30,
+      "discounts": [
+        {
+          "description": "Buy 2, get 1 free (BANANAS)",
+          "amount": 0.50
+        },
+        {
+          "description": "3 ORANGES for £0.75",
+          "amount": 0.45
+        }],
+      "totalDiscount": 0.95,
+      "total": 2.35
     }
-  ],
-    "totalDiscount": 0.95,
-    "total": 2.35
-  }
 
 ```
+# Not Implemented
+1. Price versioning
+2. Discount versioning
+3. Category/Brand/Cart Level promotion
 
 
 
