@@ -28,8 +28,9 @@ Flow:-
 5. Calculate line-item totals
 6. Apply discounts
 7. Calculate basket total
-8. Return response
-9. If exception then ApplicationExceptionHandler would handle.
+8. Generate receipt response
+9. return response
+10. If exception then ApplicationExceptionHandler would handle.
 
 # Load Balancer & Scalability(Assumed)
 1. Service is stateless, enabling horizontal scaling.
