@@ -13,4 +13,5 @@ public final class Promotion {
     private final Condition condition;
     private final Reward reward;
     private final boolean isActive;
+
 }

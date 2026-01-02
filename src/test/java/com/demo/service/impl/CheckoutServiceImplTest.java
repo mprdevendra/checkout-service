@@ -86,10 +86,11 @@ public class CheckoutServiceImplTest {
 
     @Test
     void test_checkout_ProductNotFoundException() {
-        when(priceServiceImpl.itemPrice(any())).thenThrow(new ProductNotFoundException("Test Exception message"));
+        BasketDto basket = new BasketDto(1, List.of());
+        when(priceServiceImpl.itemPrice(any(BasketDto.class))).thenThrow(new ProductNotFoundException("Test Exception message"));
 
-        CheckoutServiceException exception = Assertions.assertThrows(CheckoutServiceException.class,
-                () -> checkoutService.checkout(any()));
+        CheckoutServiceException exception = assertThrows(CheckoutServiceException.class,
+                () -> checkoutService.checkout(basket));
 
         assertEquals(404, exception.getErrorCode());
         assertTrue(exception.getMessage().contains("Test Exception message"));
