@@ -1,6 +1,7 @@
 package com.demo.service.impl;
 
 import com.demo.api.dto.DiscountDto;
+import com.demo.api.dto.ItemDetailsDto;
 import com.demo.repository.entity.Condition;
 import com.demo.repository.entity.Promotion;
 import com.demo.repository.entity.Reward;
@@ -15,26 +16,26 @@ import java.util.Optional;
 public class FixedBundlePricePromotion implements IPromotionStrategy {
 
     @Override
-    public Optional<DiscountDto> apply(int quantity, BigDecimal unitPrice, Promotion promotion){
-        int offerOnBundleSize = Integer.parseInt(promotion.getCondition().getOfferValue());
-        BigDecimal bundlePrice = new BigDecimal(promotion.getReward().getRewardValue());
-        if(quantity <= offerOnBundleSize){
+    public Optional<DiscountDto> apply(ItemDetailsDto item, Promotion promotion){
+        int quantity = item.getQuantity();
+        int bundleSize = Integer.parseInt(promotion.getCondition().getOfferValue());
+
+        if (quantity < bundleSize) {
             return Optional.empty();
         }
-        String productName = promotion.getProductName();
 
-        int bundleCount = quantity / offerOnBundleSize;
+        BigDecimal bundlePrice = new BigDecimal(promotion.getReward().getRewardValue());
+        int bundles = quantity / bundleSize;
 
-        BigDecimal totalLinePrice = BigDecimal.valueOf(quantity).multiply(unitPrice);
-        BigDecimal totalBundlePrice = BigDecimal.valueOf(bundleCount).multiply(bundlePrice);
-        BigDecimal discount = totalLinePrice.subtract(totalBundlePrice).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal discount = item.getLineTotal()
+                .subtract(bundlePrice.multiply(BigDecimal.valueOf(bundles)))
+                .setScale(2, RoundingMode.HALF_UP);
 
-        String description = discountDescription(offerOnBundleSize, productName, bundlePrice);
-        DiscountDto discountDto = new DiscountDto(description, discount);
-        return Optional.of(discountDto);
+        String description = discountDescription(bundleSize, promotion.getProductCode(), bundlePrice);
+        return Optional.of(new DiscountDto(description, discount));
     }
 
-    private String discountDescription(int offerOnBundleSize,String productName, BigDecimal offerOnBundlePrice){
-        return String.format("%d %s for £%s", offerOnBundleSize, productName, offerOnBundlePrice);
+    private String discountDescription(int offerOnBundleSize,String productCode, BigDecimal offerOnBundlePrice){
+        return String.format("%d %s for £%s", offerOnBundleSize, productCode, offerOnBundlePrice);
     }
 }

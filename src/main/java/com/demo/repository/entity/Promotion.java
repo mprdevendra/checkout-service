@@ -8,7 +8,7 @@ import java.math.RoundingMode;
 @ToString
 @AllArgsConstructor
 public final class Promotion {
-    private final String productName;
+    private final String productCode;
     private final String promotionType;
     private final Condition condition;
     private final Reward reward;

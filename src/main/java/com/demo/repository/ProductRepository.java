@@ -9,39 +9,41 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class ProductRepository {
 
-    private List<Product> productList;
+    private Map<String, Product> productMap;
 
     @PostConstruct
     private void setUpProductData(){
-        productList = dbData();
+        productMap = dbData();
     }
 
-    private List<Product> dbData(){
+    private Map<String, Product> dbData(){
         //This data is just to test as database connection/configuration is not available in this application.
-        return JsonReader.read("data/product.json", Product.class);
-    }
-
-    public Product findByName(String name){
+        List<Product> productList = JsonReader.read("data/product.json", Product.class);
         return productList.stream()
-                .filter(product -> product.getName().equalsIgnoreCase(name))
-                .findFirst()
-                .orElseThrow(() ->
-                        new ProductNotFoundException(
-                                "Product not found with name: " + name
-                        ));
+                .collect(Collectors.toMap(
+                        Product::getProductCode,
+                        product -> product));
     }
 
-    public List<Product> getByNames(List<String> names){
-        Map<String, Product> productMap = productList.stream()
-                .collect(Collectors.toMap(Product::getName, product -> product));
+    public Product findByProductCode(String productCode) {
+        Product product = productMap.get(productCode);
+        if (product == null) {
+            throw new ProductNotFoundException(
+                    "Product not found with name: " + productCode
+            );
+        }
+        return product;
+    }
 
-        List<String> missing = names.stream()
+    /*public Map<String, Product> getByProductCode(List<String> productCodes){
+        List<String> missing = productCodes.stream()
                 .filter(name -> !productMap.containsKey(name))
                 .toList();
 
@@ -50,9 +52,12 @@ public class ProductRepository {
                     "Product(s) not found: " + String.join(", ", missing)
             );
         }
-        return names.stream()
-                .map(productMap::get)
-                .toList();
-    }
+
+        return productCodes.stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        productMap::get)
+                );
+    }*/
 
 }

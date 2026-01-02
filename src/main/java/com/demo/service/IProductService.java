@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface IProductService {
 
-    List<Product> getProductsByNames(List<String> itemNames);
+    public Product find(String productCode);
 }

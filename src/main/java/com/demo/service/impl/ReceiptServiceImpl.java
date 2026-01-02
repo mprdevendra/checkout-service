@@ -1,7 +1,7 @@
 package com.demo.service.impl;
 
 import com.demo.api.dto.*;
-import com.demo.exception.DTOMapperServiceException;
+import com.demo.exception.ReceiptServiceException;
 import com.demo.service.IReceiptService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,24 +15,25 @@ public class ReceiptServiceImpl implements IReceiptService {
 
     @Override
     public Receipt receipt(List<ItemDetailsDto> items, List<DiscountDto> discounts, BigDecimal subTotal, BigDecimal discountTotal, BigDecimal total, int basketId) {
-        log.debug("Generating the receipt for BasketId={}", basketId);
         try {
-            List<ItemDto> itemDtos = items.stream()
-                    .map(item ->
-                            new ItemDto(item.getName(), item.getQuantity(), item.getLineTotal()))
-                    .toList();
-
             return Receipt.builder()
                     .basketId(basketId)
-                    .items(itemDtos)
+                    .items(mapToItemDtos(items))
                     .subTotal(subTotal)
                     .discounts(discounts)
                     .totalDiscount(discountTotal)
                     .total(total)
                     .build();
         } catch (Exception ex) {
-            log.error("Failed to map basket pricing response", ex);
-            throw new DTOMapperServiceException("Failed to map basket pricing response", ex);
+            log.error("Failed to generating the receipt : ", ex);
+            throw new ReceiptServiceException("Failed to generate receipt", ex);
         }
+    }
+
+    private List<ItemDto> mapToItemDtos(List<ItemDetailsDto> items) {
+        return items.stream()
+                .map(item ->
+                        new ItemDto(item.getItemCode(), item.getQuantity(), item.getLineTotal()))
+                .toList();
     }
 }

@@ -1,6 +1,6 @@
 [
   {
-    "productName": "Bananas",
+    "productCode": "BANANAS",
     "promotionType": "BUY_X_GET_Y",
     "condition": {
       "offerType": "QUANTITY",
@@ -13,7 +13,7 @@
     "isActive": true
   },
   {
-    "productName": "Oranges",
+    "productCode": "ORANGES",
     "promotionType": "FIXED_BUNDLE_PRICE",
     "condition": {
       "offerType": "QUANTITY",

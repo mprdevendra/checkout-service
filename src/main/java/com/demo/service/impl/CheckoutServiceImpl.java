@@ -27,25 +27,22 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private ICalculationService calculationServiceImpl;
 
     @Override
-    public Receipt checkout(BasketDto basketDto) {
-        Integer basketId = basketDto.getBasketId();
-        List<BasketItemDto> basketItems = basketDto.getBasketItems();
+    public Receipt checkout(BasketDto basket) {
+        Integer basketId = basket.getBasketId();
         log.info("Starting checkout for BasketId={}", basketId);
-        try{
-            List<ItemDetailsDto> items = priceServiceImpl.itemPrice(basketItems);
+        try {
+            List<ItemDetailsDto> items = priceServiceImpl.itemPrice(basket);
             List<DiscountDto> discounts = promotionServiceImpl.promotion(items);
             BigDecimal subTotal = calculationServiceImpl.subTotal(items);
             BigDecimal discountTotal = calculationServiceImpl.discountTotal(discounts);
             BigDecimal total = calculationServiceImpl.total(subTotal, discountTotal);
-            Receipt receipt = receiptServiceImpl.receipt(items, discounts, subTotal, discountTotal, total, basketId);
-            log.info("Basket checkout successfully completed for BasketId={}", basketId);
-            return receipt;
+            return receiptServiceImpl.receipt(items, discounts, subTotal, discountTotal, total, basketId);
         } catch (ProductNotFoundException ex) {
-            log.error("{} BasketId : {}", ex.getMessage(), basketId, ex);
-            throw new CheckoutServiceException(404, ex.getMessage()+" : BucketId : "+ basketId,ex);
+            log.warn("{} BasketId : {}", ex.getMessage(), basketId, ex);
+            throw new CheckoutServiceException(404, ex.getMessage() + " : BucketId : " + basketId, ex);
         } catch (Exception ex) {
             log.error("{} BasketId : {}", ex.getMessage(), basketId, ex);
-            throw new CheckoutServiceException(500, "Error occurred while checkout for BasketId : "+ basketId,ex);
+            throw new CheckoutServiceException(500, "Error occurred while checkout for BasketId : " + basketId, ex);
         }
     }
 }

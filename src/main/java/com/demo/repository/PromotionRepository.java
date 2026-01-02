@@ -6,29 +6,30 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class PromotionRepository {
 
-    private List<Promotion> promotions;
+    private Map<String, Promotion> promotionMap;
 
     @PostConstruct
     private void setUp(){
-        promotions = dbData();
-        System.out.println("test");
+        promotionMap = dbData();
     }
 
-    private List<Promotion> dbData(){
-        return JsonReader.read("data/promotion.json", Promotion.class);
+    private Map<String, Promotion> dbData(){
+        List<Promotion> promotions = JsonReader.read("data/promotion.json", Promotion.class);
+        return promotions.stream()
+                .collect(Collectors.toMap(
+                        Promotion::getProductCode,
+                        promo -> promo));
+
     }
 
-    public Optional<Promotion> findByProductName(String productName){
-        return promotions.stream().filter(promotion->promotion.getProductName().equals(productName)).findFirst();
-    }
-
-    public List<Promotion> getByProductNames(List<String> productNames){
-        return promotions.stream().filter(promotion->
-                productNames.contains(promotion.getProductName())).toList();
+    public Optional<Promotion> find(String productCode){
+        return Optional.ofNullable(promotionMap.get(productCode));
     }
 }

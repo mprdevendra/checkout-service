@@ -1,6 +1,7 @@
 package com.demo.service.impl;
 
 import com.demo.api.dto.DiscountDto;
+import com.demo.api.dto.ItemDetailsDto;
 import com.demo.repository.entity.Condition;
 import com.demo.repository.entity.Promotion;
 import com.demo.repository.entity.Reward;
@@ -15,24 +16,25 @@ import java.util.Optional;
 public class BuyXGetYPromotion implements IPromotionStrategy {
 
     @Override
-    public Optional<DiscountDto> apply(int quantity, BigDecimal unitPrice, Promotion promotion){
-        if(unitPrice == null || quantity <= 0){
+    public Optional<DiscountDto> apply(ItemDetailsDto item, Promotion promotion){
+        int quantity = item.getQuantity();
+        BigDecimal unitPrice = item.getUnitPrice();
+        int buyX = Integer.parseInt(promotion.getCondition().getOfferValue());
+        if (unitPrice == null || quantity <= buyX) {
             return Optional.empty();
         }
-        int buyXQuantity = Integer.parseInt(promotion.getCondition().getOfferValue());
-        int getFreeQuantity = Integer.parseInt(promotion.getReward().getRewardValue());
+        int getY = Integer.parseInt(promotion.getReward().getRewardValue());
+        int freeItems = (quantity / (buyX + getY)) * getY;
 
-        int bundleSize = buyXQuantity + getFreeQuantity;
-        int freeItem = (quantity / bundleSize) * getFreeQuantity;
+        BigDecimal discount = unitPrice
+                .multiply(BigDecimal.valueOf(freeItems))
+                .setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal discount = BigDecimal.valueOf(freeItem).multiply(unitPrice).setScale(2, RoundingMode.HALF_UP);
-
-        String description = discountDescription(buyXQuantity, getFreeQuantity, promotion.getProductName());
-        DiscountDto discountDto = new DiscountDto(description,discount);
-        return Optional.of(discountDto);
+        String description = discountDescription(buyX, getY, promotion.getProductCode());
+        return Optional.of(new DiscountDto(description,discount));
     }
 
-    private String discountDescription(int buyXQuantity,int getFreeQuantity,String productName){
-        return String.format("Buy %d, get %d free (%s)", buyXQuantity, getFreeQuantity, productName);
+    private String discountDescription(int buyXQuantity,int getFreeQuantity,String productCode){
+        return String.format("Buy %d, get %d free (%s)", buyXQuantity, getFreeQuantity, productCode);
     }
 }

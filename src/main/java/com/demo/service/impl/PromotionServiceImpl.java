@@ -34,7 +34,7 @@ public class PromotionServiceImpl implements IPromotionService {
         try {
             List<DiscountDto> discounts = new ArrayList<>();
             for(ItemDetailsDto item : itemDetailsDtos){
-                Optional<Promotion> promotionOpt = promotionRepository.findByProductName(item.getName());
+                Optional<Promotion> promotionOpt = promotionRepository.find(item.getItemCode());
                 if (promotionOpt.isEmpty() || !promotionOpt.get().isActive()) {
                     continue;
                 }
@@ -43,13 +43,13 @@ public class PromotionServiceImpl implements IPromotionService {
                 if (promotionStrategy == null) {
                     continue;
                 }
-                Optional<DiscountDto> discount = promotionStrategy.apply(item.getQuantity(), item.getUnitPrice(), promotion);
+                Optional<DiscountDto> discount = promotionStrategy.apply(item, promotion);
                 discount.ifPresent(discounts::add);
             }
             return discounts;
         } catch (Exception ex) {
-            log.error("Error occurred while calculating discount details", ex);
-            throw new PromotionServiceException("Error in calculating discount details", ex);
+            log.error("Error occurred while applying the promotion", ex);
+            throw new PromotionServiceException("Error occurred while applying the promotion", ex);
         }
     }
 }

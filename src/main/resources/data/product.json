@@ -1,21 +1,26 @@
 [
   {
+    "productCode" : "BANANAS",
     "name": "Bananas",
     "price": 0.50
   },
   {
+    "productCode" : "ORANGES",
     "name": "Oranges",
     "price": 0.30
   },
   {
+    "productCode" : "APPLES",
     "name": "Apples",
     "price": 0.60
   },
   {
+    "productCode" : "LEMONS",
     "name": "Lemons",
     "price": 0.25
   },
   {
+    "productCode" : "BEACHES",
     "productName": "Peaches",
     "price": 0.75
   }

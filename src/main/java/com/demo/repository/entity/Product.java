@@ -5,16 +5,9 @@ import java.math.RoundingMode;
 
 @Getter
 @ToString
+@AllArgsConstructor
 public class Product {
+    private final String productCode;
     private final String name;
     private final BigDecimal price;
-
-    public Product(String name, BigDecimal price) {
-        this.name = name;
-        this.price = setScale(price);
-    }
-
-    private BigDecimal setScale(BigDecimal value) {
-        return value.setScale(2, RoundingMode.HALF_UP);
-    }
 }
